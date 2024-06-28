@@ -1,11 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect } from "react";
+import Header from "./components/Header";
+import { WithFirebaseApiProps, withFirebaseApi } from "./Firebase";
+import { useAppDispatch } from "./redux/hooks";
+import { setUserId } from "./redux/userSlice";
 
-function App() {
+const App = (props: WithFirebaseApiProps) => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    return props.firebaseApi.onAuthStateChanged((user) => {
+      if (user) {
+        dispatch(setUserId(user.uid));
+      } else {
+        dispatch(setUserId(null));
+      }
+    });
+  }, []);
+
   return (
-    <h1>hi, it's me</h1>
+    <>
+      <Header />
+    </>
   );
-}
+};
 
-export default App;
+export default withFirebaseApi(App);
