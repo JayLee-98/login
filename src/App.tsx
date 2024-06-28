@@ -1,17 +1,61 @@
-import { Box, CircularProgress, Container, Typography } from "@mui/material";
-import { useEffect } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import { WithFirebaseApiProps, withFirebaseApi } from "./Firebase";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { RootState } from "./redux/store";
-import { handleUserChange } from "./redux/userSlice";
+import { asyncSetUserInfo, handleUserChange } from "./redux/userSlice";
 
 const isLoadingState = (state: RootState): boolean => {
   return state.user.userId === undefined;
 };
 
 const OnboardingBase = (props: WithFirebaseApiProps) => {
-  return <></>;
+  const userId = useAppSelector((state: RootState) => state.user.userId);
+  const dispatch = useAppDispatch();
+  const [username, setUsername] = useState<string>("");
+  return (
+    <>
+      <Typography variant="h2" component="div" align="left">
+        Finish setting up your account.
+      </Typography>
+      <Stack direction="row" spacing={2}>
+        <Typography
+          variant="body1"
+          align="left"
+          sx={{ marginTop: "auto", marginBottom: "auto" }}
+        >
+          username: 
+        </Typography>
+        <TextField 
+          value={username}
+          label="Edit Username"
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </Stack>
+      <Button
+      variant="contained"
+      sx={{marginTop: 2}}
+      onClick={async () => {
+        dispatch(asyncSetUserInfo({
+          firebaseApi: props.firebaseApi,
+          userId: userId!,
+          userInfo: {username: username},
+        }))
+      }}
+      >
+        SUBMIT
+      </Button>
+    </>
+  );
 };
 
 const Onboarding = withFirebaseApi(OnboardingBase);
