@@ -112,5 +112,5 @@ export const handleUserChange =
       }
       dispatch(asyncGetUserInfo({ firebaseApi, userId }));
     };
-    
+
 export default userSlice.reducer;
