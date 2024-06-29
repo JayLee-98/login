@@ -72,7 +72,10 @@ const OnboardingBase = (props: WithFirebaseApiProps) => {
         variant="contained"
         sx={{ marginTop: 2 }}
         onClick={async () => {
-          const handle = await props.firebaseApi.asyncUploadImage(userId!, file!);
+          const handle = await props.firebaseApi.asyncUploadImage(
+            userId!,
+            file!
+          );
           dispatch(
             asyncSetUserInfo({
               firebaseApi: props.firebaseApi,
@@ -96,8 +99,30 @@ const Onboarding = withFirebaseApi(OnboardingBase);
 
 const EditProfileBase = (props: WithFirebaseApiProps) => {
   const userId = useAppSelector((state: RootState) => state.user.userId);
+  const userInfo = useAppSelector(
+    (state: RootState) => state.user.userInfo.value
+  );
   const dispatch = useAppDispatch();
   const [username, setUsername] = useState<string>("");
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (userInfo?.profilePicHandle == null) {
+      return;
+    }
+
+    props.firebaseApi
+      .asyncGetURLFromHandle(userInfo?.profilePicHandle)
+      .then((url) => {
+        setProfilePicUrl(url);
+      });
+  }, [userInfo?.profilePicHandle]);
+
+  let profilePic = null;
+  if (profilePicUrl) {
+    profilePic = <img src={profilePicUrl} width={200} />;
+  }
+
   return (
     <>
       <Typography variant="h2" component="div" align="left">
@@ -116,6 +141,15 @@ const EditProfileBase = (props: WithFirebaseApiProps) => {
           label="Edit Username"
           onChange={(e) => setUsername(e.target.value)}
         />
+      </Stack>
+      <Stack direction="row" spacing={2}>
+        <Typography
+          variant="body1"
+          align="left"
+          sx={{ marginTop: "auto", marginBottom: "auto" }}
+        >
+          Profile Pic:
+        </Typography>
       </Stack>
       <Button
         variant="contained"
