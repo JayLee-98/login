@@ -26,6 +26,12 @@ const OnboardingBase = (props: WithFirebaseApiProps) => {
   const userId = useAppSelector((state: RootState) => state.user.userId);
   const dispatch = useAppDispatch();
   const [username, setUsername] = useState<string>("");
+  const [file, setFile] = useState<File | null>(null);
+  let selectedProfilePic = null;
+  if (file !== null) {
+    selectedProfilePic = <img src={URL.createObjectURL(file!)} width={200} />;
+  }
+
   return (
     <>
       <Typography variant="h2" component="div" align="left">
@@ -45,21 +51,40 @@ const OnboardingBase = (props: WithFirebaseApiProps) => {
           onChange={(e) => setUsername(e.target.value)}
         />
       </Stack>
+      {selectedProfilePic}
+      <Button variant="contained" component="label">
+        Upload
+        <input
+          hidden
+          accept="image/*"
+          onChange={(e) => {
+            const files = e.target.files;
+            if (files == null || files.length === 0) {
+              setFile(null);
+            } else {
+              setFile(files[0]);
+            }
+          }}
+          type="file"
+        />
+      </Button>
       <Button
         variant="contained"
         sx={{ marginTop: 2 }}
         onClick={async () => {
+          const handle = await props.firebaseApi.asyncUploadImage(userId!, file!);
           dispatch(
             asyncSetUserInfo({
               firebaseApi: props.firebaseApi,
               userId: userId!,
               userInfo: {
                 username: username,
-                profilePicHandle: null,
+                profilePicHandle: handle,
               },
             })
           );
         }}
+        disabled={file === null || username.length === 0}
       >
         SUBMIT
       </Button>
