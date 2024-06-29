@@ -53,7 +53,10 @@ const OnboardingBase = (props: WithFirebaseApiProps) => {
             asyncSetUserInfo({
               firebaseApi: props.firebaseApi,
               userId: userId!,
-              userInfo: { username: username },
+              userInfo: {
+                username: username,
+                profilePicHandle: null,
+              },
             })
           );
         }}
@@ -76,8 +79,12 @@ const EditProfileBase = (props: WithFirebaseApiProps) => {
         Edit Profile
       </Typography>
       <Stack direction="row" spacing={2}>
-        <Typography variant="body1" align="left" sx={{marginTop: "auto", marginBottom: "auto"}}>
-          username: 
+        <Typography
+          variant="body1"
+          align="left"
+          sx={{ marginTop: "auto", marginBottom: "auto" }}
+        >
+          username:
         </Typography>
         <TextField
           value={username}
@@ -87,13 +94,15 @@ const EditProfileBase = (props: WithFirebaseApiProps) => {
       </Stack>
       <Button
         variant="contained"
-        sx={{marginTop:2}}
+        sx={{ marginTop: 2 }}
         onClick={async () => {
-          dispatch(asyncUpdateUserInfo({
-            firebaseApi: props.firebaseApi,
-            userId: userId!,
-            userInfo: {username: username},
-          }))
+          dispatch(
+            asyncUpdateUserInfo({
+              firebaseApi: props.firebaseApi,
+              userId: userId!,
+              userInfo: { username: username },
+            })
+          );
         }}
       >
         SUBMIT

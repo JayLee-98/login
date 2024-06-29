@@ -69,6 +69,7 @@ export default class FirebaseApi {
     }
     return {
       username: docSnap.data().username,
+      profilePicHandle: null,
     };
   };
 };
