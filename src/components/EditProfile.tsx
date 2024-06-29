@@ -5,98 +5,87 @@ import { WithFirebaseApiProps, withFirebaseApi } from "../Firebase";
 import { useAppSelector, useAppDispatch } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import { asyncUpdateUserInfo } from "../redux/userSlice";
-import {UserInfo} from '../types';
- 
+import { UserInfo } from "../types";
+
 const EditProfilePicViewModeBase = (props: WithFirebaseApiProps & {
     userInfo: UserInfo
     onEditClick: () => void,
-}) => {
+  }) => {
     const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
   
     useEffect(() => {
-      if (props.userInfo.profilePicHandle == null) {
-        return;
-      }
-  
-      props.firebaseApi
-        .asyncGetURLFromHandle(props.userInfo.profilePicHandle)
-        .then((url) => {
-          setProfilePicUrl(url);
-        });
-    }, [props.userInfo.profilePicHandle]);
-  
-    let profilePic = null;
-    if (profilePicUrl) {
-      profilePic = <img src={profilePicUrl} width={200} />;
-    }
-  
-   return (
-        <Stack direction="row" spacing={2}>
-          <Typography
-            variant="body1"
-            align="left"
-            sx={{ marginTop: "auto", marginBottom: "auto" }}
-          >
-            Profile Pic:
-          </Typography>
-          {profilePic}
-          <IconButton onClick={() => props.onEditClick()}>
-            <EditIcon />
-          </IconButton>
-        </Stack>
-   )
+        if (props.userInfo.profilePicHandle == null) {
+            return;
+          }
+
+          props.firebaseApi.asyncGetURLFromHandle(props.userInfo.profilePicHandle).then((url) => {
+            setProfilePicUrl(url);
+          });
+
+        }, [props.userInfo.profilePicHandle]);
+        let profilePic = null;
+        if (profilePicUrl) {
+          profilePic = <img src={profilePicUrl} width={200} />;
+        }
+        return (
+            <Stack direction="row" spacing={2}>
+              <Typography variant="body1" align="left" sx={{ marginTop: "auto", marginBottom: "auto" }}>
+              Profile Pic:
+      </Typography>
+
+      {profilePic}
+      <IconButton onClick={() => props.onEditClick()}>
+        <EditIcon />
+      </IconButton>
+    </Stack>
+  )
 };
 
 const EditProfilePicViewMode = withFirebaseApi(EditProfilePicViewModeBase);
 
 const EditProfilePicEditModeBase = (props: WithFirebaseApiProps & {
-    useId: string,
-    userInfo: UserInfo,
-    onSubmitClick: () => void,
+  userId: string,
+  userInfo: UserInfo,
+  onSubmitClick: () => void,
 }) => {
-    const [file, setFile] = useState<File | null>(null);
-    const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
-    const dispatch = useAppDispatch();
+  const [file, setFile] = useState<File | null>(null);
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        if (props.userInfo.profilePicHandle == null) {
-            return;
-        }
-
-        props.firebaseApi.asyncGetURLFromHandle(props.userInfo.profilePicHandle).then((url) => {
-            setProfilePicUrl(url);
-        })
-    }, [props.userInfo.profilePicHandle]);
-
-    let profilePic = null;
-    if (profilePicUrl) {
-        profilePic = <img src={profilePicUrl} width={200} />
+  useEffect(() => {
+    if (props.userInfo.profilePicHandle == null) {
+      return;
     }
-    if (file !== null) {
-        profilePic = <img src={URL.createObjectURL(file!)} width={200} />
-    }
+    props.firebaseApi.asyncGetURLFromHandle(props.userInfo.profilePicHandle).then((url) => {
+      setProfilePicUrl(url);
+    });
+  }, [props.userInfo.profilePicHandle]);
+  let profilePic = null;
+  if (profilePicUrl) {
+    profilePic = <img src={profilePicUrl} width={200} />;
+  }
+  if (file !== null) {
+    profilePic = <img src={URL.createObjectURL(file!)} width={200} />;
+  }
 
-return (
-        <Stack direction="row" spacing={2}>
-          <Typography
-            variant="body1"
-            align="left"
-            sx={{ marginTop: "auto", marginBottom: "auto" }}
-          >
-            Profile Pic:
-          </Typography>
-        <Button variant="contained" component="label">
-            Select Image
-            <input hidden accept="image/*" onChange={(e) => {
-                const files = e.target.files;
-                if (files == null || files.length == 0) {
-                    setFile(null);
-                } esle {
-                    setFile(files[0]);
-                }
-            }} type="file" />
-        </Button>
-        <Button
+  return (
+    <Stack direction="row" spacing={2}>
+      <Typography variant="body1" align="left" sx={{ marginTop: "auto", marginBottom: "auto" }}>
+        Profile Pic:
+      </Typography>
+      {profilePic}
+      <Button variant="contained" component="label">
+        Select Image
+        <input hidden accept="image/*" onChange={(e) => {
+          const files = e.target.files;
+          if (files == null || files.length === 0) {
+            setFile(null);
+          } else {
+            setFile(files[0]);
+          }
+        }} type="file" />
+      </Button>
+      <Button
         variant="contained"
         sx={{ marginTop: 2 }}
         onClick={async () => {
@@ -177,39 +166,39 @@ const EditUsernameEditModeBase = (props: WithFirebaseApiProps & {
           }))
         }}
       >SUBMIT</Button>
-        </Stack>
-    );
-  };
-
-  const EditUsernameEditMode = withFirebaseApi(EditUsernameEditModeBase);
-
-const EditUsername = (props: {
-  userId: string,
-  userInfo: UserInfo,
-}) => {
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-
-  return isEditMode ? <EditUsernameEditMode
-    userId={props.userId}
-    userInfo={props.userInfo}
-    onSubmitClick={() => setIsEditMode(false)}
-  /> : <EditUsernameViewMode
-    userInfo={props.userInfo}
-    onEditClick={() => setIsEditMode(true)}
-  />;
-};
-
-const EditProfileBase = (props: WithFirebaseApiProps) => {
-  const userId = useAppSelector((state: RootState) => state.user.userId);
-  const userInfo = useAppSelector((state: RootState) => state.user.userInfo.value);
-
-  return (<>
-    <Typography variant="h2" component="div" align="left">
-      Edit Profile
-    </Typography>
-    <EditUsername userId={userId!} userInfo={userInfo!} />
-    <EditProfilePic userId={userId!} userInfo={userInfo!} />
-  </>);
-}
-
-  export default withFirebaseApi(EditProfileBase);
+    </Stack>
+     )
+    };
+    
+    const EditUsernameEditMode = withFirebaseApi(EditUsernameEditModeBase);
+    
+    const EditUsername = (props: {
+      userId: string,
+      userInfo: UserInfo,
+    }) => {
+      const [isEditMode, setIsEditMode] = useState<boolean>(false);
+    
+      return isEditMode ? <EditUsernameEditMode
+        userId={props.userId}
+        userInfo={props.userInfo}
+        onSubmitClick={() => setIsEditMode(false)}
+      /> : <EditUsernameViewMode
+        userInfo={props.userInfo}
+        onEditClick={() => setIsEditMode(true)}
+      />;
+    };
+    
+    const EditProfileBase = (props: WithFirebaseApiProps) => {
+      const userId = useAppSelector((state: RootState) => state.user.userId);
+      const userInfo = useAppSelector((state: RootState) => state.user.userInfo.value);
+    
+      return (<>
+        <Typography variant="h2" component="div" align="left">
+          Edit Profile
+        </Typography>
+        <EditUsername userId={userId!} userInfo={userInfo!} />
+        <EditProfilePic userId={userId!} userInfo={userInfo!} />
+      </>);
+    }
+    
+    export default withFirebaseApi(EditProfileBase);
